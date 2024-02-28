@@ -1,0 +1,26 @@
+
+node("built-in")
+{
+    stage("Download")
+    {
+        git "https://github.com/RahulSachan73/Maven.git"
+    }
+    stage("Build")
+    {
+        sh "mvn package"
+    }
+    stage("Deploy")
+    {
+        input message: 'Need Approval from DM', submitter: 'nana'
+        deploy adapters: [tomcat9(credentialsId: '1f6ff5a2-f596-43dd-9a01-e2f21384d103', path: '', url: 'http://172.31.80.182:8080')], contextPath: 'testapp', war: '**/*.war'
+    }
+    stage("Test")
+    {
+        git "https://github.com/RahulSachan73/Functional-Testing.git"
+        sh 'java -jar /home/ubuntu/.jenkins/workspace/Scriptive_Pipeline/testing.jar'
+    }
+    stage("Deploy")
+    {
+        deploy adapters: [tomcat9(credentialsId: '1f6ff5a2-f596-43dd-9a01-e2f21384d103', path: '', url: 'http://172.31.85.145:8080')], contextPath: 'prodapp', war: '**/*.war'
+    }
+}
